@@ -1,0 +1,37 @@
+{
+  "name": "medhasmind-monorepo",
+  "version": "1.0.0",
+  "description": "MedhasMind - AI-powered hackathon preparation platform",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm run start",
+    "lint": "cd frontend && npm run lint",
+    "backend:dev": "cd backend && python -m app.main",
+    "backend:test": "cd backend && python test_db.py",
+    "deploy:check": "node deploy-check.js",
+    "frontend:install": "cd frontend && npm install",
+    "backend:install": "cd backend && pip install -r requirements.txt",
+    "install:all": "npm run frontend:install && npm run backend:install",
+    "clean": "rm -rf frontend/.next frontend/node_modules backend/__pycache__ backend/*.pyc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/medhasmind.git"
+  },
+  "keywords": [
+    "hackathon",
+    "ai",
+    "education",
+    "platform",
+    "nextjs",
+    "fastapi"
+  ],
+  "author": "MedhasMind Team",
+  "license": "MIT"
+}

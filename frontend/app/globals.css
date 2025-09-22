@@ -1,0 +1,182 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Updated color tokens to match the educational design brief */
+  --background: #ffffff; /* Main background color */
+  --foreground: #475569; /* Primary text color */
+  --card: #f1f5f9; /* Background for cards and panels */
+  --card-foreground: #475569; /* Text color for card content */
+  --popover: #ffffff; /* Background for popover elements */
+  --popover-foreground: #475569; /* Text color for popovers */
+  --primary: #059669; /* Main action color for buttons */
+  --primary-foreground: #ffffff; /* Text color for primary buttons */
+  --secondary: #10b981; /* Secondary action color for buttons */
+  --secondary-foreground: #ffffff; /* Text color for secondary buttons */
+  --muted: #f1f5f9; /* Muted backgrounds for less important elements */
+  --muted-foreground: #475569; /* Text color for muted elements */
+  --accent: #10b981; /* Accent color for highlights */
+  --accent-foreground: #ffffff; /* Text color for accent elements */
+  --destructive: #be123c; /* Color for error messages or actions */
+  --destructive-foreground: #ffffff; /* Text color for destructive actions */
+  --border: #e2e8f0; /* Border color for input and card elements */
+  --input: #ffffff; /* Background color for input fields */
+  --ring: rgba(9, 150, 105, 0.5); /* Ring color for focus states */
+  --chart-1: #059669; /* Color for first data series in charts */
+  --chart-2: #10b981; /* Color for second data series in charts */
+  --chart-3: #d97706; /* Color for third data series in charts */
+  --chart-4: #be123c; /* Color for fourth data series in charts */
+  --chart-5: #4b5563; /* Color for fifth data series in charts */
+  --radius: 0.5rem; /* Corner rounding for cards and buttons */
+  --sidebar: #f1f5f9; /* Background color for sidebar */
+  --sidebar-foreground: #475569; /* Text color for sidebar */
+  --sidebar-primary: #059669; /* Primary color for sidebar highlights */
+  --sidebar-primary-foreground: #ffffff; /* Text color for primary sidebar highlights */
+  --sidebar-accent: #10b981; /* Accent color for sidebar elements */
+  --sidebar-accent-foreground: #ffffff; /* Text color for sidebar accents */
+  --sidebar-border: #e2e8f0; /* Border color for sidebar */
+  --sidebar-ring: rgba(9, 150, 105, 0.5); /* Ring color for sidebar focus states */
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: #10b981; /* Lighter emerald for dark mode */
+  --primary-foreground: oklch(0.145 0 0);
+  --secondary: #34d399; /* Lighter secondary for dark mode */
+  --secondary-foreground: oklch(0.145 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: #34d399;
+  --accent-foreground: oklch(0.145 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: rgba(16, 185, 129, 0.5);
+  --chart-1: #10b981;
+  --chart-2: #34d399;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: oklch(0.708 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: oklch(0.145 0 0);
+  --sidebar-accent: #34d399;
+  --sidebar-accent-foreground: oklch(0.145 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: rgba(16, 185, 129, 0.5);
+}
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Updated gradient utilities to match new emerald color scheme */
+@layer utilities {
+  .gradient-primary {
+    background: linear-gradient(135deg, #059669, #10b981);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #059669, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-gradient-bg {
+    background: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%);
+    position: relative;
+  }
+
+  .hero-gradient-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(5, 150, 105, 0.9) 0%,
+      rgba(16, 185, 129, 0.9) 50%,
+      rgba(4, 120, 87, 0.9) 100%
+    );
+    z-index: 1;
+  }
+
+  .gradient-cta {
+    background: linear-gradient(135deg, #059669, #10b981);
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px) translateX(0px);
+    }
+    25% {
+      transform: translateY(-10px) translateX(5px);
+    }
+    50% {
+      transform: translateY(-5px) translateX(-5px);
+    }
+    75% {
+      transform: translateY(-15px) translateX(10px);
+    }
+  }
+
+  .particle {
+    animation: float 6s ease-in-out infinite;
+  }
+}

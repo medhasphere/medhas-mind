@@ -1,0 +1,53 @@
+[build]
+  # Build from frontend directory
+  base = "frontend"
+  # Static export outputs to 'out' directory
+  publish = "out"
+  # Build command for static export
+  command = "npm run build"
+
+[build.environment]
+  # Node.js version
+  NODE_VERSION = "18"
+
+# Environment variables (set these in Netlify dashboard)
+[build.environment]
+  NEXT_PUBLIC_API_URL = "/.netlify/functions/api"
+  NEXT_PUBLIC_SUPABASE_URL = "your-supabase-project-url"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-supabase-anon-key"
+  SUPABASE_URL = "your-supabase-project-url"
+  SUPABASE_ANON_KEY = "your-supabase-anon-key"
+  SUPABASE_SERVICE_ROLE_KEY = "your-supabase-service-role-key"
+
+# SPA fallback for client-side routing
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Cache static assets
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Security headers for specific routes
+[[headers]]
+  for = "/student/dashboard"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://medhasmind-api.onrender.com https://*.supabase.co;"
