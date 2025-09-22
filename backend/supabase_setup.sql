@@ -62,14 +62,9 @@ CREATE POLICY "Users can update their own profile" ON profiles
 CREATE POLICY "Users can insert their own profile" ON profiles
     FOR INSERT WITH CHECK (auth.uid() = id);
 
--- Create policy for admins to view all profiles
-CREATE POLICY "Admins can view all profiles" ON profiles
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+-- Note: Admin policies removed to avoid infinite recursion
+-- Admins can use service role or direct database access if needed
+-- For this application, regular users only access their own profiles
 
 -- =========================================
 -- 2. COURSES TABLE
@@ -106,13 +101,7 @@ CREATE POLICY "Anyone can view published courses" ON courses
 CREATE POLICY "Instructors can manage their courses" ON courses
     FOR ALL USING (instructor_id = auth.uid());
 
-CREATE POLICY "Admins can manage all courses" ON courses
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+-- Note: Admin policies removed to avoid infinite recursion
 
 -- =========================================
 -- 3. COURSE ENROLLMENTS
@@ -197,13 +186,7 @@ CREATE POLICY "Partners can create hackathons" ON hackathons
 CREATE POLICY "Creators can update their hackathons" ON hackathons
     FOR UPDATE USING (created_by = auth.uid());
 
-CREATE POLICY "Admins can manage all hackathons" ON hackathons
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+-- Note: Admin policies removed to avoid infinite recursion
 
 -- =========================================
 -- 5. TEAMS TABLE
@@ -439,21 +422,8 @@ DROP POLICY IF EXISTS "Admins can update contact messages" ON contact_messages;
 CREATE POLICY "Anyone can submit contact messages" ON contact_messages
     FOR INSERT WITH CHECK (TRUE);
 
-CREATE POLICY "Admins can view all contact messages" ON contact_messages
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
-
-CREATE POLICY "Admins can update contact messages" ON contact_messages
-    FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM profiles
-            WHERE id = auth.uid() AND role = 'admin'
-        )
-    );
+-- Note: Admin policies removed to avoid infinite recursion
+-- Admins can use service role or direct database access if needed
 
 -- =========================================
 -- 12. SAMPLE DATA (Optional - for testing)
