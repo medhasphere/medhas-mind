@@ -368,6 +368,45 @@ CREATE INDEX IF NOT EXISTS idx_progress_activity ON user_progress(activity_type)
 CREATE INDEX IF NOT EXISTS idx_progress_created ON user_progress(created_at);
 
 -- =========================================
+-- CONTACT MESSAGES TABLE
+-- =========================================
+
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    message TEXT NOT NULL,
+    inquiry_type TEXT DEFAULT 'general' CHECK (inquiry_type IN ('general', 'support', 'partnership', 'technical', 'feedback')),
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+
+-- Policies - Allow anyone to insert (for contact form), only admins can read
+CREATE POLICY "Anyone can submit contact messages" ON contact_messages
+    FOR INSERT WITH CHECK (TRUE);
+
+CREATE POLICY "Admins can view all contact messages" ON contact_messages
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM profiles
+            WHERE id = auth.uid() AND role = 'admin'
+        )
+    );
+
+CREATE POLICY "Admins can update contact messages" ON contact_messages
+    FOR UPDATE USING (
+        EXISTS (
+            SELECT 1 FROM profiles
+            WHERE id = auth.uid() AND role = 'admin'
+        )
+    );
+
+-- =========================================
 -- 12. SAMPLE DATA (Optional - for testing)
 -- =========================================
 

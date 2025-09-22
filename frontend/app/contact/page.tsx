@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
-import { Mail, Phone, MapPin, Clock, Send, MessageSquare, Users, Building, CheckCircle } from "lucide-react"
+import { Mail, Phone, MapPin, Clock, Send, MessageSquare, Users, Building, CheckCircle, Loader2 } from "lucide-react"
 import {
   HeroAnimation,
   FadeInUp,
@@ -20,6 +20,7 @@ import {
   SlideInLeft,
   SlideInRight,
 } from "@/components/gsap-animations"
+import { apiClient } from "@/lib/api"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -30,23 +31,44 @@ export default function ContactPage() {
     inquiryType: "general",
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you would typically send the form data to your backend
-    console.log("Form submitted:", formData)
-    setIsSubmitted(true)
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false)
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
-        inquiryType: "general",
+    setError("")
+    setIsLoading(true)
+
+    try {
+      const response = await apiClient.submitContactMessage({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        inquiry_type: formData.inquiryType,
       })
-    }, 3000)
+
+      if (response.error) {
+        setError(response.error)
+      } else {
+        setIsSubmitted(true)
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setIsSubmitted(false)
+          setFormData({
+            name: "",
+            email: "",
+            subject: "",
+            message: "",
+            inquiryType: "general",
+          })
+        }, 3000)
+      }
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -159,6 +181,12 @@ export default function ContactPage() {
                   Fill out the form below and we'll get back to you within 24 hours.
                 </p>
 
+                {error && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                    <p className="text-sm text-red-600">{error}</p>
+                  </div>
+                )}
+
                 {isSubmitted ? (
                   <Card className="p-8 text-center bg-green-50 border-green-200">
                     <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
@@ -237,9 +265,18 @@ export default function ContactPage() {
                       />
                     </div>
 
-                    <Button type="submit" size="lg" className="w-full gradient-primary text-white hover:opacity-90">
-                      Send Message
-                      <Send className="ml-2 h-5 w-5" />
+                    <Button type="submit" size="lg" className="w-full gradient-primary text-white hover:opacity-90" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          Send Message
+                          <Send className="ml-2 h-5 w-5" />
+                        </>
+                      )}
                     </Button>
                   </form>
                 )}

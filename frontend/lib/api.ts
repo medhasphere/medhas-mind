@@ -1,8 +1,8 @@
 // Direct Supabase client for MedhasMind
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-key'
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
@@ -317,10 +317,41 @@ class ApiClient {
       return {
         data: {
           total_enrollments: enrollments?.length || 0,
-          completed_courses: enrollments?.filter(e => e.completed_at).length || 0,
+          completed_courses: enrollments?.filter((e: any) => e.completed_at).length || 0,
           achievements: achievements || []
         }
       }
+    } catch (error) {
+      return { error: 'Network error' }
+    }
+  }
+
+  // Contact endpoints
+  async submitContactMessage(contactData: {
+    name: string
+    email: string
+    subject: string
+    message: string
+    inquiry_type: string
+  }): Promise<ApiResponse<{ id: string }>> {
+    try {
+      const { data, error } = await supabase
+        .from('contact_messages')
+        .insert({
+          name: contactData.name,
+          email: contactData.email,
+          subject: contactData.subject,
+          message: contactData.message,
+          inquiry_type: contactData.inquiry_type
+        })
+        .select('id')
+        .single()
+
+      if (error) {
+        return { error: error.message }
+      }
+
+      return { data: data as { id: string } }
     } catch (error) {
       return { error: 'Network error' }
     }
@@ -329,6 +360,3 @@ class ApiClient {
 
 // Export singleton instance
 export const apiClient = new ApiClient()
-
-// Export Supabase client for direct use if needed
-export { supabase }
