@@ -333,6 +333,9 @@ CREATE POLICY "Users can create their own progress records" ON user_progress
 -- 10. FUNCTIONS AND TRIGGERS
 -- =========================================
 
+-- Drop function if exists
+DROP FUNCTION IF EXISTS update_updated_at_column();
+
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -341,6 +344,13 @@ BEGIN
     RETURN NEW;
 END;
 $$ language 'plpgsql';
+
+-- Drop existing triggers if they exist
+DROP TRIGGER IF EXISTS update_profiles_updated_at ON profiles;
+DROP TRIGGER IF EXISTS update_courses_updated_at ON courses;
+DROP TRIGGER IF EXISTS update_hackathons_updated_at ON hackathons;
+DROP TRIGGER IF EXISTS update_teams_updated_at ON teams;
+DROP TRIGGER IF EXISTS update_portfolio_projects_updated_at ON portfolio_projects;
 
 -- Add triggers for updated_at
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
