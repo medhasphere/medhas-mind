@@ -8,7 +8,7 @@ import { DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Building2, Eye, EyeOff, Mail, Lock, User, Building, Loader2 } from "lucide-react"
-import { apiClient } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
 
 interface PartnerAuthFormProps {
   onClose: () => void
@@ -16,6 +16,7 @@ interface PartnerAuthFormProps {
 }
 
 export function PartnerAuthForm({ onClose, onAuthSuccess }: PartnerAuthFormProps) {
+  const auth = useAuth()
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -36,16 +37,12 @@ export function PartnerAuthForm({ onClose, onAuthSuccess }: PartnerAuthFormProps
     try {
       if (isLogin) {
         // Login
-        const response = await apiClient.login({
-          email: formData.email,
-          password: formData.password,
-        })
-
-        if (response.error) {
-          setError(response.error)
-        } else if (response.data) {
-          onAuthSuccess?.(response.data.user)
+        const result = await auth.login(formData.email, formData.password)
+        if (result.success) {
+          onAuthSuccess?.(auth.user)
           onClose()
+        } else {
+          setError(result.error || "Login failed")
         }
       } else {
         // Signup
@@ -55,18 +52,17 @@ export function PartnerAuthForm({ onClose, onAuthSuccess }: PartnerAuthFormProps
           return
         }
 
-        const response = await apiClient.signup({
+        const result = await auth.signup({
           email: formData.email,
           password: formData.password,
           name: formData.name,
           user_type: "partner",
         })
-
-        if (response.error) {
-          setError(response.error)
-        } else if (response.data) {
-          onAuthSuccess?.(response.data.user)
+        if (result.success) {
+          onAuthSuccess?.(auth.user)
           onClose()
+        } else {
+          setError(result.error || "Signup failed")
         }
       }
     } catch (err) {

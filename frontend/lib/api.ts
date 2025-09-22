@@ -1,8 +1,8 @@
 // Direct Supabase client for MedhasMind
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-key'
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://abcdefghijklmnopqrst.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3BxcnN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDU4NjYwMDAsImV4cCI6MTk2MTQ0MjAwMH0.dummy-signature'
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
