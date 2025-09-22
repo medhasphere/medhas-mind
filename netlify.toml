@@ -9,9 +9,7 @@
 [build.environment]
   # Node.js version
   NODE_VERSION = "18"
-
-# Environment variables (set these in Netlify dashboard)
-[build.environment]
+  # Environment variables (set these in Netlify dashboard or here)
   NEXT_PUBLIC_API_URL = "/.netlify/functions/api"
   NEXT_PUBLIC_SUPABASE_URL = "your-supabase-project-url"
   NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-supabase-anon-key"
