@@ -46,6 +46,12 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- Enable Row Level Security
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view their own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can update their own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can insert their own profile" ON profiles;
+DROP POLICY IF EXISTS "Admins can view all profiles" ON profiles;
+
 -- Create policies for profiles table
 CREATE POLICY "Users can view their own profile" ON profiles
     FOR SELECT USING (auth.uid() = id);
@@ -88,6 +94,11 @@ CREATE TABLE IF NOT EXISTS courses (
 -- Enable RLS
 ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies
+DROP POLICY IF EXISTS "Anyone can view published courses" ON courses;
+DROP POLICY IF EXISTS "Instructors can manage their courses" ON courses;
+DROP POLICY IF EXISTS "Admins can manage all courses" ON courses;
+
 -- Policies for courses
 CREATE POLICY "Anyone can view published courses" ON courses
     FOR SELECT USING (is_published = TRUE);
@@ -122,6 +133,11 @@ CREATE TABLE IF NOT EXISTS course_enrollments (
 
 -- Enable RLS
 ALTER TABLE course_enrollments ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies
+DROP POLICY IF EXISTS "Users can view their own enrollments" ON course_enrollments;
+DROP POLICY IF EXISTS "Users can enroll themselves" ON course_enrollments;
+DROP POLICY IF EXISTS "Users can update their own progress" ON course_enrollments;
 
 -- Policies
 CREATE POLICY "Users can view their own enrollments" ON course_enrollments
@@ -159,6 +175,12 @@ CREATE TABLE IF NOT EXISTS hackathons (
 
 -- Enable RLS
 ALTER TABLE hackathons ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies
+DROP POLICY IF EXISTS "Anyone can view active hackathons" ON hackathons;
+DROP POLICY IF EXISTS "Partners can create hackathons" ON hackathons;
+DROP POLICY IF EXISTS "Creators can update their hackathons" ON hackathons;
+DROP POLICY IF EXISTS "Admins can manage all hackathons" ON hackathons;
 
 -- Policies
 CREATE POLICY "Anyone can view active hackathons" ON hackathons
@@ -240,6 +262,10 @@ CREATE TABLE IF NOT EXISTS portfolio_projects (
 -- Enable RLS
 ALTER TABLE portfolio_projects ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies
+DROP POLICY IF EXISTS "Anyone can view published projects" ON portfolio_projects;
+DROP POLICY IF EXISTS "Users can manage their own projects" ON portfolio_projects;
+
 -- Policies
 CREATE POLICY "Anyone can view published projects" ON portfolio_projects
     FOR SELECT USING (TRUE); -- Public portfolio
@@ -265,6 +291,10 @@ CREATE TABLE IF NOT EXISTS achievements (
 -- Enable RLS
 ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies
+DROP POLICY IF EXISTS "Users can view their own achievements" ON achievements;
+DROP POLICY IF EXISTS "System can create achievements" ON achievements;
+
 -- Policies
 CREATE POLICY "Users can view their own achievements" ON achievements
     FOR SELECT USING (auth.uid() = user_id);
@@ -287,6 +317,10 @@ CREATE TABLE IF NOT EXISTS user_progress (
 
 -- Enable RLS
 ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies
+DROP POLICY IF EXISTS "Users can view their own progress" ON user_progress;
+DROP POLICY IF EXISTS "Users can create their own progress records" ON user_progress;
 
 -- Policies
 CREATE POLICY "Users can view their own progress" ON user_progress
@@ -386,6 +420,11 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 -- Enable RLS
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies
+DROP POLICY IF EXISTS "Anyone can submit contact messages" ON contact_messages;
+DROP POLICY IF EXISTS "Admins can view all contact messages" ON contact_messages;
+DROP POLICY IF EXISTS "Admins can update contact messages" ON contact_messages;
+
 -- Policies - Allow anyone to insert (for contact form), only admins can read
 CREATE POLICY "Anyone can submit contact messages" ON contact_messages
     FOR INSERT WITH CHECK (TRUE);
@@ -440,6 +479,11 @@ INSERT INTO hackathons (title, description, theme, start_date, end_date, registr
 -- Teams RLS and Policies
 ALTER TABLE teams ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies
+DROP POLICY IF EXISTS "Team members can view their teams" ON teams;
+DROP POLICY IF EXISTS "Anyone can create teams for active hackathons" ON teams;
+DROP POLICY IF EXISTS "Team leaders can update their teams" ON teams;
+
 CREATE POLICY "Team members can view their teams" ON teams
     FOR SELECT USING (
         leader_id = auth.uid() OR
@@ -462,6 +506,11 @@ CREATE POLICY "Team leaders can update their teams" ON teams
 
 -- Team Members RLS and Policies
 ALTER TABLE team_members ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies
+DROP POLICY IF EXISTS "Team members can view team membership" ON team_members;
+DROP POLICY IF EXISTS "Users can join teams" ON team_members;
+DROP POLICY IF EXISTS "Team leaders can manage members" ON team_members;
 
 CREATE POLICY "Team members can view team membership" ON team_members
     FOR SELECT USING (
