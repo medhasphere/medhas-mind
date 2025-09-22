@@ -105,7 +105,7 @@ class ApiClient {
     name: string
     user_type: 'student' | 'partner'
   }): Promise<ApiResponse<AuthResponse>> {
-    const result = await this.request<AuthResponse>('/api/v1/auth/signup', {
+    const result = await this.request<AuthResponse>('/auth/signup', {
       method: 'POST',
       body: JSON.stringify(userData),
     })
@@ -121,7 +121,7 @@ class ApiClient {
     email: string
     password: string
   }): Promise<ApiResponse<AuthResponse>> {
-    const result = await this.request<AuthResponse>('/api/v1/auth/login', {
+    const result = await this.request<AuthResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     })
@@ -134,7 +134,7 @@ class ApiClient {
   }
 
   async logout(): Promise<ApiResponse> {
-    const result = await this.request('/api/v1/auth/logout', {
+    const result = await this.request('/auth/logout', {
       method: 'POST',
     })
 
@@ -146,7 +146,7 @@ class ApiClient {
   }
 
   async refreshToken(): Promise<ApiResponse<{ access_token: string; token_type: string; expires_in: number }>> {
-    const result = await this.request('/api/v1/auth/refresh-token', {
+    const result = await this.request('/auth/refresh-token', {
       method: 'POST',
     })
 
@@ -158,11 +158,11 @@ class ApiClient {
   }
 
   async getCurrentUser(): Promise<ApiResponse<User>> {
-    return this.request<User>('/api/v1/users/profile')
+    return this.request<User>('/users/profile')
   }
 
   async updateProfile(profileData: Partial<User>): Promise<ApiResponse<User>> {
-    return this.request<User>('/api/v1/users/profile', {
+    return this.request<User>('/users/profile', {
       method: 'PUT',
       body: JSON.stringify(profileData),
     })
@@ -176,17 +176,17 @@ class ApiClient {
     if (params?.limit) queryParams.append('limit', params.limit.toString())
 
     const query = queryParams.toString()
-    return this.request<any[]>(`/api/v1/courses${query ? `?${query}` : ''}`)
+    return this.request<any[]>(`/courses${query ? `?${query}` : ''}`)
   }
 
   // Hackathon endpoints
   async getHackathons(): Promise<ApiResponse<any[]>> {
-    return this.request<any[]>('/api/v1/hackathons')
+    return this.request<any[]>('/hackathons')
   }
 
   // Analytics endpoints
   async getUserAnalytics(): Promise<ApiResponse<any>> {
-    return this.request('/api/v1/analytics/user')
+    return this.request('/analytics/user')
   }
 }
 
