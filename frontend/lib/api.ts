@@ -1,5 +1,10 @@
-// API client for MedhasMind backend
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+// Direct Supabase client for MedhasMind
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export interface ApiResponse<T = any> {
   data?: T
@@ -35,69 +40,6 @@ export interface User {
 }
 
 class ApiClient {
-  private baseURL: string
-
-  constructor(baseURL: string) {
-    this.baseURL = baseURL
-  }
-
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
-    const url = `${this.baseURL}${endpoint}`
-
-    const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      ...options,
-    }
-
-    // Add auth token if available
-    const token = this.getAuthToken()
-    if (token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${token}`,
-      }
-    }
-
-    try {
-      const response = await fetch(url, config)
-      const data = await response.json()
-
-      if (!response.ok) {
-        return {
-          error: data.detail || data.message || 'An error occurred',
-        }
-      }
-
-      return { data }
-    } catch (error) {
-      console.error('API request failed:', error)
-      return {
-        error: 'Network error or server unavailable',
-      }
-    }
-  }
-
-  private getAuthToken(): string | null {
-    if (typeof window === 'undefined') return null
-    return localStorage.getItem('auth_token')
-  }
-
-  private setAuthToken(token: string): void {
-    if (typeof window === 'undefined') return
-    localStorage.setItem('auth_token', token)
-  }
-
-  private removeAuthToken(): void {
-    if (typeof window === 'undefined') return
-    localStorage.removeItem('auth_token')
-  }
-
   // Authentication endpoints
   async signup(userData: {
     email: string
@@ -105,93 +47,288 @@ class ApiClient {
     name: string
     user_type: 'student' | 'partner'
   }): Promise<ApiResponse<AuthResponse>> {
-    const result = await this.request<AuthResponse>('/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    })
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          data: {
+            name: userData.name,
+            user_type: userData.user_type,
+            role: userData.user_type === 'student' ? 'student' : 'partner'
+          }
+        }
+      })
 
-    if (result.data?.access_token) {
-      this.setAuthToken(result.data.access_token)
+      if (error) {
+        return { error: error.message }
+      }
+
+      if (data.user) {
+        // Create profile in database
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            email: userData.email,
+            name: userData.name,
+            role: userData.user_type === 'student' ? 'student' : 'partner',
+            user_type: userData.user_type
+          })
+
+        if (profileError) {
+          return { error: profileError.message }
+        }
+
+        return {
+          data: {
+            access_token: data.session?.access_token || '',
+            token_type: 'bearer',
+            expires_in: 3600,
+            user: {
+              id: data.user.id,
+              email: userData.email,
+              name: userData.name,
+              role: userData.user_type === 'student' ? 'student' : 'partner',
+              user_type: userData.user_type,
+              created_at: data.user.created_at,
+              updated_at: data.user.updated_at || data.user.created_at,
+              is_active: true,
+              email_confirmed: data.user.email_confirmed_at ? true : false
+            }
+          }
+        }
+      }
+
+      return { error: 'Signup failed' }
+    } catch (error) {
+      return { error: 'Network error' }
     }
-
-    return result
   }
 
   async login(credentials: {
     email: string
     password: string
   }): Promise<ApiResponse<AuthResponse>> {
-    const result = await this.request<AuthResponse>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    })
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password
+      })
 
-    if (result.data?.access_token) {
-      this.setAuthToken(result.data.access_token)
+      if (error) {
+        return { error: error.message }
+      }
+
+      if (data.user) {
+        // Get user profile
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single()
+
+        if (profileError) {
+          return { error: profileError.message }
+        }
+
+        return {
+          data: {
+            access_token: data.session?.access_token || '',
+            token_type: 'bearer',
+            expires_in: 3600,
+            user: profile as User
+          }
+        }
+      }
+
+      return { error: 'Login failed' }
+    } catch (error) {
+      return { error: 'Network error' }
     }
-
-    return result
   }
 
   async logout(): Promise<ApiResponse> {
-    const result = await this.request('/auth/logout', {
-      method: 'POST',
-    })
-
-    if (!result.error) {
-      this.removeAuthToken()
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        return { error: error.message }
+      }
+      return { data: 'Logged out successfully' }
+    } catch (error) {
+      return { error: 'Network error' }
     }
-
-    return result
   }
 
   async refreshToken(): Promise<ApiResponse<{ access_token: string; token_type: string; expires_in: number }>> {
-    const result = await this.request('/auth/refresh-token', {
-      method: 'POST',
-    })
-
-    if (result.data?.access_token) {
-      this.setAuthToken(result.data.access_token)
+    // Supabase handles token refresh automatically
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession()
+      if (error) {
+        return { error: error.message }
+      }
+      return {
+        data: {
+          access_token: session?.access_token || '',
+          token_type: 'bearer',
+          expires_in: 3600
+        }
+      }
+    } catch (error) {
+      return { error: 'Network error' }
     }
-
-    return result
   }
 
   async getCurrentUser(): Promise<ApiResponse<User>> {
-    return this.request<User>('/users/profile')
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) {
+        return { error: authError.message }
+      }
+
+      if (!user) {
+        return { error: 'Not authenticated' }
+      }
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+
+      if (error) {
+        return { error: error.message }
+      }
+
+      return { data: profile as User }
+    } catch (error) {
+      return { error: 'Network error' }
+    }
   }
 
   async updateProfile(profileData: Partial<User>): Promise<ApiResponse<User>> {
-    return this.request<User>('/users/profile', {
-      method: 'PUT',
-      body: JSON.stringify(profileData),
-    })
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) {
+        return { error: authError.message }
+      }
+
+      if (!user) {
+        return { error: 'Not authenticated' }
+      }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(profileData)
+        .eq('id', user.id)
+        .select()
+        .single()
+
+      if (error) {
+        return { error: error.message }
+      }
+
+      return { data: data as User }
+    } catch (error) {
+      return { error: 'Network error' }
+    }
   }
 
   // Course endpoints
   async getCourses(params?: { category?: string; difficulty?: string; limit?: number }): Promise<ApiResponse<any[]>> {
-    const queryParams = new URLSearchParams()
-    if (params?.category) queryParams.append('category', params.category)
-    if (params?.difficulty) queryParams.append('difficulty', params.difficulty)
-    if (params?.limit) queryParams.append('limit', params.limit.toString())
+    try {
+      let query = supabase
+        .from('courses')
+        .select('*')
+        .eq('is_published', true)
 
-    const query = queryParams.toString()
-    return this.request<any[]>(`/courses${query ? `?${query}` : ''}`)
+      if (params?.category) {
+        query = query.eq('category', params.category)
+      }
+      if (params?.difficulty) {
+        query = query.eq('difficulty', params.difficulty)
+      }
+      if (params?.limit) {
+        query = query.limit(params.limit)
+      }
+
+      const { data, error } = await query
+
+      if (error) {
+        return { error: error.message }
+      }
+
+      return { data: data || [] }
+    } catch (error) {
+      return { error: 'Network error' }
+    }
   }
 
   // Hackathon endpoints
   async getHackathons(): Promise<ApiResponse<any[]>> {
-    return this.request<any[]>('/hackathons')
+    try {
+      const { data, error } = await supabase
+        .from('hackathons')
+        .select('*')
+        .eq('is_active', true)
+
+      if (error) {
+        return { error: error.message }
+      }
+
+      return { data: data || [] }
+    } catch (error) {
+      return { error: 'Network error' }
+    }
   }
 
   // Analytics endpoints
   async getUserAnalytics(): Promise<ApiResponse<any>> {
-    return this.request('/analytics/user')
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) {
+        return { error: authError.message }
+      }
+
+      if (!user) {
+        return { error: 'Not authenticated' }
+      }
+
+      // Get user's course enrollments
+      const { data: enrollments, error: enrollError } = await supabase
+        .from('course_enrollments')
+        .select('*')
+        .eq('user_id', user.id)
+
+      if (enrollError) {
+        return { error: enrollError.message }
+      }
+
+      // Get user's achievements
+      const { data: achievements, error: achieveError } = await supabase
+        .from('achievements')
+        .select('*')
+        .eq('user_id', user.id)
+
+      if (achieveError) {
+        return { error: achieveError.message }
+      }
+
+      return {
+        data: {
+          total_enrollments: enrollments?.length || 0,
+          completed_courses: enrollments?.filter(e => e.completed_at).length || 0,
+          achievements: achievements || []
+        }
+      }
+    } catch (error) {
+      return { error: 'Network error' }
+    }
   }
 }
 
 // Export singleton instance
-export const apiClient = new ApiClient(API_BASE_URL)
+export const apiClient = new ApiClient()
 
-// Export types
-export type { ApiResponse, AuthResponse, User }
+// Export Supabase client for direct use if needed
+export { supabase }
