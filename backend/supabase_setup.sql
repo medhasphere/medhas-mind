@@ -410,20 +410,8 @@ CREATE TABLE IF NOT EXISTS contact_messages (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable RLS
-ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
-
--- Drop existing policies
-DROP POLICY IF EXISTS "Anyone can submit contact messages" ON contact_messages;
-DROP POLICY IF EXISTS "Admins can view all contact messages" ON contact_messages;
-DROP POLICY IF EXISTS "Admins can update contact messages" ON contact_messages;
-
--- Policies - Allow anyone to insert (for contact form), only admins can read
-CREATE POLICY "Anyone can submit contact messages" ON contact_messages
-    FOR INSERT WITH CHECK (TRUE);
-
--- Note: Admin policies removed to avoid infinite recursion
--- Admins can use service role or direct database access if needed
+-- Disable RLS for contact_messages to allow anonymous submissions from the contact form
+ALTER TABLE contact_messages DISABLE ROW LEVEL SECURITY;
 
 -- =========================================
 -- 12. SAMPLE DATA (Optional - for testing)
