@@ -25,6 +25,7 @@ export function PartnerAuthForm({ onClose, onAuthSuccess }: PartnerAuthFormProps
     name: "",
     email: "",
     company: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   })
@@ -58,6 +59,7 @@ export function PartnerAuthForm({ onClose, onAuthSuccess }: PartnerAuthFormProps
           name: formData.name,
           user_type: "partner",
           company: formData.company,
+          phone: formData.phone,
         })
         if (result.success) {
           onAuthSuccess?.(auth.user)
@@ -132,6 +134,23 @@ export function PartnerAuthForm({ onClose, onAuthSuccess }: PartnerAuthFormProps
                   onChange={(e) => handleInputChange("company", e.target.value)}
                   className="pl-10 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   required={!isLogin}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Phone Number
+              </Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="Enter your phone number"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  className="pl-10 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
             </div>

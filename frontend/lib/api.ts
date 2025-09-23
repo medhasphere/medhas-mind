@@ -29,6 +29,7 @@ export interface User {
   bio?: string
   institution?: string
   company?: string
+  phone?: string
   location?: string
   linkedin_url?: string
   github_url?: string
@@ -48,6 +49,7 @@ class ApiClient {
     name: string
     user_type: 'student' | 'partner'
     company?: string
+    phone?: string
   }): Promise<ApiResponse<AuthResponse>> {
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -76,7 +78,8 @@ class ApiClient {
             name: userData.name,
             role: userData.user_type === 'student' ? 'student' : 'partner',
             user_type: userData.user_type,
-            company: userData.company
+            company: userData.company,
+            phone: userData.phone
           })
 
         if (profileError) {

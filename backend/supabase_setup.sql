@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     bio TEXT,
     institution TEXT,
     company TEXT, -- For partners
+    phone TEXT, -- Contact phone number
     location TEXT,
     linkedin_url TEXT,
     github_url TEXT,
