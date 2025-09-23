@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -17,6 +18,7 @@ interface StudentAuthFormProps {
 
 export function StudentAuthForm({ onClose, onAuthSuccess }: StudentAuthFormProps) {
   const auth = useAuth()
+  const router = useRouter()
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -40,6 +42,7 @@ export function StudentAuthForm({ onClose, onAuthSuccess }: StudentAuthFormProps
         if (result.success) {
           onAuthSuccess?.(auth.user)
           onClose()
+          router.push('/student/dashboard')
         } else {
           setError(result.error || "Login failed")
         }
@@ -60,6 +63,7 @@ export function StudentAuthForm({ onClose, onAuthSuccess }: StudentAuthFormProps
         if (result.success) {
           onAuthSuccess?.(auth.user)
           onClose()
+          router.push('/student/dashboard')
         } else {
           setError(result.error || "Signup failed")
         }
