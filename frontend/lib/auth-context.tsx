@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
-  signup: (userData: { email: string; password: string; name: string; user_type: 'student' | 'partner' }) => Promise<{ success: boolean; error?: string }>
+  signup: (userData: { email: string; password: string; name: string; user_type: 'student' | 'partner'; company?: string }) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
 }
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  const signup = async (userData: { email: string; password: string; name: string; user_type: 'student' | 'partner' }) => {
+  const signup = async (userData: { email: string; password: string; name: string; user_type: 'student' | 'partner'; company?: string }) => {
     try {
       const response = await apiClient.signup(userData)
       if (response.data) {

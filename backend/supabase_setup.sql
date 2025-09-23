@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     avatar_url TEXT,
     bio TEXT,
     institution TEXT,
+    company TEXT, -- For partners
     location TEXT,
     linkedin_url TEXT,
     github_url TEXT,

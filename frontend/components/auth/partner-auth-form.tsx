@@ -57,6 +57,7 @@ export function PartnerAuthForm({ onClose, onAuthSuccess }: PartnerAuthFormProps
           password: formData.password,
           name: formData.name,
           user_type: "partner",
+          company: formData.company,
         })
         if (result.success) {
           onAuthSuccess?.(auth.user)

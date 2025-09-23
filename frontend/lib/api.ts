@@ -1,8 +1,8 @@
 // Direct Supabase client for MedhasMind
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://abcdefghijklmnopqrst.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3BxcnN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDU4NjYwMDAsImV4cCI6MTk2MTQ0MjAwMH0.dummy-signature'
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
@@ -28,6 +28,7 @@ export interface User {
   avatar_url?: string
   bio?: string
   institution?: string
+  company?: string
   location?: string
   linkedin_url?: string
   github_url?: string
@@ -46,6 +47,7 @@ class ApiClient {
     password: string
     name: string
     user_type: 'student' | 'partner'
+    company?: string
   }): Promise<ApiResponse<AuthResponse>> {
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -73,7 +75,8 @@ class ApiClient {
             email: userData.email,
             name: userData.name,
             role: userData.user_type === 'student' ? 'student' : 'partner',
-            user_type: userData.user_type
+            user_type: userData.user_type,
+            company: userData.company
           })
 
         if (profileError) {
